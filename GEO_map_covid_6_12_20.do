@@ -1,6 +1,7 @@
-cd "D:\Lora_new\Databases\GEO\cb_2018_us_county_500k"
-use "D:\Lora_new\Databases\GEO\cb_2018_us_county_500k\covid19_adj.dta"
-spmatrix use Widist using Widist.stswm
+***prepared for analysis of geospatial data. Updated analysis with the Covid-19 data as of June 11, 2020
+***by Larisa Tereshchenko <tereshch@ohsu.edu>
+***I acknowledge the use of code provided by Chuck Huber (STATA) https://blog.stata.com/tag/covid-19/
+***and https://blog.stata.com/2020/03/27/covid-19-time-series-data-from-johns-hopkins-university/
 
 
 spshape2dta cb_2018_us_county_500k.shp, saving(usacounties) replace
@@ -847,49 +848,4 @@ estat moran, errorlag(Widist)
 
 
 
-
-***average direct and indirect impact in a county
-estat impact
-
-**Question: if the unemployment rate drops by 1% for each county, what is its effect on the homicide rate?
-margins, at(unemployment=generate(unemployment))  at(unemployment=generate(unemployment-1)) 
-
-
-
-
-***
-preserve /* save data temporarily */
-
-* Step 1: predict covid19 death using original data */
-predict death_adj0
-
-
-* Step 2: reduce NY use of ARB by 50% and increase ACEI by 50%, and predict again*/
-. replace unemployment = 20 if cname == "Dallas"
-(1 real change made)
-
-. predict y1
-(option rform assumed; reduced-form mean)
-
-. /* Step 3: Compute the prediction difference and map it*/
-. generate double y_diff = y1 - y0
-
-grmap y_diff, title("Global spillover")
-
-. 
-restore /* return to original data */
-*****my datasets/2010-2019/counties/totals/co-est2019-alldata
-
-spregress logcases logrACEI logrARB CVDhosp CVDdeath NHBlack below18 air somecollege med_hh_income_percent_of_state_t , heteroskedastic dvarlag(Widist) ivarlag(Widist: logrACEI logrARB CVDhosp CVDdeath NHBlack below18 air somecollege med_hh_income_percent_of_state_t )  errorlag(Widist) gs2sls
-predict covidincidence0
- list logrACEI logrARB if fips==48113
-di  1.825859/2
-di 2.073551 + .9129295
-replace logrACEI = 2.9864805 if fips==48113
-replace logrARB = .9129295 if fips==48113
-predict covidincidence1
-generate double y_diff = covidincidence1 - covidincidence0
-grmap, activate
-keep if inlist(stname, "Texas")
-spset, modify shpfile(usacounties_shp)
 grmap y_diff, clnumber(7)
