@@ -18,4 +18,5 @@ and https://blog.stata.com/2020/03/27/covid-19-time-series-data-from-johns-hopki
 
 
 ### Manuscripts to reference:
-Preprint: https://www.medrxiv.org/content/10.1101/2020.05.31.20118802v1
+Preprint: https://www.medrxiv.org/content/10.1101/2020.05.31.20118802v1. 
+Published: https://pubmed.ncbi.nlm.nih.gov/34906367/. 
